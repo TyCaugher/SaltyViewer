@@ -1,12 +1,15 @@
 package com.example.saltyviewer
 
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -42,6 +45,8 @@ object RetrofitHelper {
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        val vm = PostViewModel()
 
         setContent {
             SaltyViewerTheme {
@@ -50,7 +55,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    PostView()
+                    PostView(vm)
 
                 }
             }
@@ -59,7 +64,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PostView() {
+fun PostView(vm: PostViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -70,27 +75,24 @@ fun PostView() {
                 })
         },
         content = {
+            ImageGridView(vm = vm)
         })
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageGridView(vm: PostViewModel){
-
+    
     LaunchedEffect(Unit, block = {
         vm.getPostList()
     })
 
-    if (vm.errorMessage.isEmpty()) {
-        Column {
-            for(post in vm.postList) {
-                Text(text = post.id.toString())
-                ImageItem(url = post.sample.url)
-            }
+    LazyVerticalGrid(
+        cells = GridCells.Fixed(2)
+    ) {
+        items(vm.postList.size) { index -> 
+            ImageItem(url = vm.postList[index].file.url)
         }
-        Log.d("API", vm.postList.toString())
-    }
-    else {
-        Text(vm.errorMessage)
     }
 }
 
@@ -104,7 +106,6 @@ fun ImageItem(url: String) {
         imageModel = url,
         contentScale = ContentScale.Crop,
         modifier = Modifier.height(200.dp),
-        placeHolder = R.drawable.ic_baseline_broken_image_24
     )
 }
 
@@ -114,7 +115,7 @@ fun ImageItem(url: String) {
 fun AppLayoutPreview() {
     val vm = PostViewModel()
     SaltyViewerTheme {
-        PostView()
+        PostView(vm)
     }
 }
 
