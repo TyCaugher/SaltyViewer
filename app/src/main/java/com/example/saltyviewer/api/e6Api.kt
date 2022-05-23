@@ -9,6 +9,6 @@ interface e6Api {
 
     // Search format: posts.json? tags=order:score+dragon+rating:s &limit=5
     @Headers("User-Agent: SaltyViewer/0.1 (By Kroren)")
-    @GET("/posts.json?tags=order:score+dragon+rating:s&limit=10")
+    @GET("/posts.json?tags=")
     suspend fun getPosts(@Query("tags") tags: List<String>?, @Query("page") page: Int): Response<Posts>
 }

@@ -19,13 +19,15 @@ class PostViewModel : ViewModel() {
     val postList: List<Post>
         get() = _postList
 
-    fun getPostList() {
+    fun getPostList(tags: List<String>) {
         viewModelScope.launch {
+            val tempTags = listOf("order:score", "dragon", "limit=10", "rating:s")
+
             val e6ApiService = RetrofitHelper.getInstance().create(e6Api::class.java)
             try {
-                val result = e6ApiService.getPosts()
+                val result = e6ApiService.getPosts(tags, 1)
                 _postList.clear()
-                _postList.addAll(e6ApiService.getPosts().body()!!.posts)
+                _postList.addAll(result.body()!!.posts)
             } catch (e: Exception) {
                 errorMessage = e.message.toString()
             }
